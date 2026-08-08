@@ -90,7 +90,7 @@ Parameters:
 - `enabled` (bool, default `true`)
 - `tts_enabled` (bool, default `true`) — read content aloud when notification fires
 - `tts_engine` (string, default `"edge"`) — TTS engine: `"edge"` (online, natural) or `"pyttsx3"` (offline)
-- `tts_voice` (string, default `""`) — voice ID, empty = engine default. Edge examples: `zh-CN-XiaoxiaoNeural`, `zh-CN-YunxiNeural`
+- `tts_voice` (string, default `"zh-CN-XiaoxiaoNeural"`) — voice ID. Edge examples: `zh-CN-XiaoxiaoNeural` (晓晓), `zh-CN-YunxiNeural` (云希)
 
 Examples:
 

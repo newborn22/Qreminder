@@ -109,7 +109,7 @@ python watcher.py --port 8080  # 自定义端口
 | `enabled` | bool | `true` | 是否启用 |
 | `tts_enabled` | bool | `true` | 是否朗读语音 |
 | `tts_engine` | string | `"edge"` | TTS 引擎：`edge` / `pyttsx3` / `""` |
-| `tts_voice` | string | `""` | 语音 ID，空为引擎默认 |
+| `tts_voice` | string | `"zh-CN-XiaoxiaoNeural"` | 语音 ID，Edge 默认晓晓 |
 
 **POST /api/notify** — 立即弹通知：
 

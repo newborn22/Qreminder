@@ -143,7 +143,7 @@ def _make_handler(storage, root, on_notify):
                     repeat_day=body.get("repeat_day", 1),
                     tts_enabled=body.get("tts_enabled", True),
                     tts_engine=body.get("tts_engine", "edge"),
-                    tts_voice=body.get("tts_voice", ""),
+                    tts_voice=body.get("tts_voice", "zh-CN-XiaoxiaoNeural"),
                 )
                 storage.add(task)
                 self._json(task.to_dict(), status=201)
@@ -173,7 +173,7 @@ def _make_handler(storage, root, on_notify):
                 repeat_type=body.get("repeat_type", "once"),
                 tts_enabled=body.get("tts_enabled", True),
                 tts_engine=body.get("tts_engine", "edge"),
-                tts_voice=body.get("tts_voice", ""),
+                tts_voice=body.get("tts_voice", "zh-CN-XiaoxiaoNeural"),
             )
             # Schedule on tk main thread
             root.after(0, on_notify, task)

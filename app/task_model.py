@@ -26,7 +26,7 @@ class Task:
     # TTS (text-to-speech)
     tts_enabled: bool = True             # read content aloud when notification fires
     tts_engine: str = "edge"             # "edge" | "pyttsx3" | ""
-    tts_voice: str = ""                  # voice ID, empty = engine default
+    tts_voice: str = "zh-CN-XiaoxiaoNeural"  # voice ID
 
     def __post_init__(self):
         if self.id is None:
@@ -66,7 +66,7 @@ class Task:
             repeat_day=d.get("repeat_day", 1),
             tts_enabled=d.get("tts_enabled", True),
             tts_engine=d.get("tts_engine", "edge"),
-            tts_voice=d.get("tts_voice", ""),
+            tts_voice=d.get("tts_voice", "zh-CN-XiaoxiaoNeural"),
         )
 
     # ── display helpers ──────────────────────────────────────────
