@@ -327,9 +327,9 @@ class TaskDialog:
                     break
         self._tts_voice_cb["values"] = voices
         if voices:
-            self._tts_voice_var.set(voices[0])
+            self.tts_voice_var.set(voices[0])
         else:
-            self._tts_voice_var.set("")
+            self.tts_voice_var.set("")
 
     # ── load / save ──────────────────────────────────────────────
 
