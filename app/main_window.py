@@ -78,6 +78,7 @@ class MainWindow:
             ("＋ 新建", self._new_task, "#a6e3a1", "#1e1e2e"),
             ("✎ 编辑", self._edit_task, "#89b4fa", "#1e1e2e"),
             ("✕ 删除", self._delete_task, "#f38ba8", "#1e1e2e"),
+            ("▶ 测试", self._test_task, "#f9e2af", "#1e1e2e"),
         ]
         for text, cmd, bg_btn, fg_btn in btn_data:
             tk.Button(
@@ -208,6 +209,15 @@ class MainWindow:
                 "tts_voice": dialog.result.tts_voice,
             })
             self._refresh_list()
+
+    def _test_task(self):
+        """Immediately trigger the selected task's notification (for testing)."""
+        sel = self.tree.selection() if self.tree else []
+        if not sel:
+            return
+        task = self.storage.get(sel[0])
+        if task:
+            self.show_notification(task)
 
     def _delete_task(self):
         sel = self.tree.selection() if self.tree else []
