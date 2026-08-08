@@ -108,7 +108,7 @@ class MainWindow:
         tree_frame = tk.Frame(self.window, bg=bg)
         tree_frame.pack(fill=tk.BOTH, expand=True, padx=16, pady=(0, 12))
 
-        columns = ("time", "content", "repeat", "mode", "enabled")
+        columns = ("time", "content", "repeat", "mode", "tts", "enabled")
         self.tree = ttk.Treeview(
             tree_frame, columns=columns, show="headings",
             selectmode="browse", height=14,
@@ -118,12 +118,14 @@ class MainWindow:
         self.tree.heading("content", text="提醒内容")
         self.tree.heading("repeat", text="重复")
         self.tree.heading("mode", text="执行方式")
+        self.tree.heading("tts", text="语音")
         self.tree.heading("enabled", text="状态")
 
         self.tree.column("time", width=70, anchor="center")
-        self.tree.column("content", width=260)
+        self.tree.column("content", width=240)
         self.tree.column("repeat", width=100, anchor="center")
-        self.tree.column("mode", width=130, anchor="center")
+        self.tree.column("mode", width=120, anchor="center")
+        self.tree.column("tts", width=60, anchor="center")
         self.tree.column("enabled", width=60, anchor="center")
 
         # Dark theme
@@ -160,12 +162,16 @@ class MainWindow:
         for item in self.tree.get_children():
             self.tree.delete(item)
         for task in self.storage.get_all():
+            tts_enabled = getattr(task, "tts_enabled", True)
+            tts_engine = getattr(task, "tts_engine", "edge") or ""
+            tts_icon = f"🔊 {tts_engine}" if tts_enabled else "🔇"
             self.tree.insert(
                 "", tk.END, iid=task.id, values=(
                     task.time,
                     task.content,
                     task.repeat_label,
                     task.mode_label,
+                    tts_icon,
                     "✅ 启用" if task.enabled else "❌ 停用",
                 ),
             )
@@ -197,6 +203,9 @@ class MainWindow:
                 "repeat_type": dialog.result.repeat_type,
                 "repeat_days": dialog.result.repeat_days,
                 "repeat_day": dialog.result.repeat_day,
+                "tts_enabled": dialog.result.tts_enabled,
+                "tts_engine": dialog.result.tts_engine,
+                "tts_voice": dialog.result.tts_voice,
             })
             self._refresh_list()
 

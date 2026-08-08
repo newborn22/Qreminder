@@ -141,6 +141,9 @@ def _make_handler(storage, root, on_notify):
                     repeat_type=body.get("repeat_type", "daily"),
                     repeat_days=body.get("repeat_days", [0, 1, 2, 3, 4]),
                     repeat_day=body.get("repeat_day", 1),
+                    tts_enabled=body.get("tts_enabled", True),
+                    tts_engine=body.get("tts_engine", "edge"),
+                    tts_voice=body.get("tts_voice", ""),
                 )
                 storage.add(task)
                 self._json(task.to_dict(), status=201)
@@ -152,7 +155,8 @@ def _make_handler(storage, root, on_notify):
             if not task:
                 return self._json({"error": "not found"}, status=404)
             updatable = {"time", "content", "mode", "lock_minutes", "enabled",
-                         "repeat_type", "repeat_days", "repeat_day"}
+                         "repeat_type", "repeat_days", "repeat_day",
+                         "tts_enabled", "tts_engine", "tts_voice"}
             kwargs = {k: v for k, v in body.items() if k in updatable}
             storage.update(task_id, **kwargs)
             task = storage.get(task_id)  # re-read
@@ -167,6 +171,9 @@ def _make_handler(storage, root, on_notify):
                 lock_minutes=body.get("lock_minutes", 5),
                 enabled=True,
                 repeat_type=body.get("repeat_type", "once"),
+                tts_enabled=body.get("tts_enabled", True),
+                tts_engine=body.get("tts_engine", "edge"),
+                tts_voice=body.get("tts_voice", ""),
             )
             # Schedule on tk main thread
             root.after(0, on_notify, task)

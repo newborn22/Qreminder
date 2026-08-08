@@ -1,2 +1,4 @@
 pystray==0.19.5
 Pillow==11.1.0
+edge-tts>=7.0.0
+pyttsx3>=2.90

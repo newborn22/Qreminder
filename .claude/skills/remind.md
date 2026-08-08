@@ -88,6 +88,9 @@ Parameters:
 - `repeat_day` (int, default `1`, 1-31) — for monthly
 - `lock_minutes` (int, default `5`, 1-60)
 - `enabled` (bool, default `true`)
+- `tts_enabled` (bool, default `true`) — read content aloud when notification fires
+- `tts_engine` (string, default `"edge"`) — TTS engine: `"edge"` (online, natural) or `"pyttsx3"` (offline)
+- `tts_voice` (string, default `""`) — voice ID, empty = engine default. Edge examples: `zh-CN-XiaoxiaoNeural`, `zh-CN-YunxiNeural`
 
 Examples:
 

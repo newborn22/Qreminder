@@ -167,6 +167,48 @@ class TaskDialog:
         tk.Label(self.monthly_frame, text="号", font=("Microsoft YaHei", 10),
                  bg=bg, fg=fg).pack(side=tk.LEFT)
 
+        # ── TTS section ─────────────────────────────────────
+        tk.Label(self.dialog, text="语音朗读", font=("Microsoft YaHei", 10),
+                 bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(14, 0))
+
+        tts_frame = tk.Frame(self.dialog, bg=bg)
+        tts_frame.pack(anchor=tk.W, padx=20, pady=(4, 0))
+
+        self.tts_enabled_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(
+            tts_frame, text="启用", variable=self.tts_enabled_var,
+            font=("Microsoft YaHei", 10), bg=bg, fg=fg,
+            selectcolor="#313244", activebackground=bg,
+            activeforeground=accent, command=self._on_tts_change,
+        ).pack(side=tk.LEFT)
+
+        tk.Label(tts_frame, text="  引擎:", font=("Microsoft YaHei", 10),
+                 bg=bg, fg=fg).pack(side=tk.LEFT, padx=(12, 4))
+
+        self.tts_engine_var = tk.StringVar(value="edge")
+        self._tts_engine_cb = ttk.Combobox(
+            tts_frame, textvariable=self.tts_engine_var,
+            values=["edge", "pyttsx3"], width=10,
+            font=("Microsoft YaHei", 10), state="readonly",
+        )
+        self._tts_engine_cb.pack(side=tk.LEFT)
+        self._tts_engine_cb.bind("<<ComboboxSelected>>", self._on_tts_engine_change)
+
+        tk.Label(tts_frame, text="  语音:", font=("Microsoft YaHei", 10),
+                 bg=bg, fg=fg).pack(side=tk.LEFT, padx=(12, 4))
+
+        self.tts_voice_var = tk.StringVar(value="")
+        self._tts_voice_cb = ttk.Combobox(
+            tts_frame, textvariable=self.tts_voice_var,
+            values=[], width=22, font=("Microsoft YaHei", 10),
+            state="readonly",
+        )
+        self._tts_voice_cb.pack(side=tk.LEFT, padx=(0, 6))
+
+        # Lazy-load voices from engines
+        self._tts_engines_cache: list[dict] | None = None
+        self._load_tts_engines()
+
         # ── enabled checkbox ───────────────────────────────────
         self.enabled_var = tk.BooleanVar(value=True)
         tk.Checkbutton(
@@ -232,6 +274,63 @@ class TaskDialog:
         elif rt == "monthly":
             self.monthly_frame.pack(anchor=tk.W, padx=20, pady=(6, 0))
 
+    # ── TTS helpers ───────────────────────────────────────────────
+
+    def _load_tts_engines(self):
+        """Fetch available engines + voices in background, populate combos."""
+        import threading
+        def _fetch():
+            from .tts import list_engines
+            self._tts_engines_cache = list_engines()
+            # Schedule UI update on main thread
+            self.dialog.after(0, self._populate_tts_ui)
+        threading.Thread(target=_fetch, daemon=True).start()
+
+    def _populate_tts_ui(self):
+        if not self._tts_engines_cache:
+            return
+        self._on_tts_engine_change()
+        # Restore saved voice if editing
+        saved = getattr(self, "_saved_tts_voice_id", "")
+        if saved:
+            self._select_voice_by_id(saved)
+
+    def _select_voice_by_id(self, voice_id: str):
+        """Select a voice in the combo by its ID (not display string)."""
+        values = list(self._tts_voice_cb["values"])
+        for i, val in enumerate(values):
+            if val.startswith(voice_id + " "):
+                self._tts_voice_cb.current(i)
+                return
+        # If not found in current engine's list, just leave as-is
+
+    def _extract_voice_id(self) -> str:
+        """Extract the raw voice ID from the combo display string."""
+        val = self.tts_voice_var.get()
+        if "  (" in val:
+            return val.split("  (")[0]
+        return val
+
+    def _on_tts_change(self):
+        enabled = self.tts_enabled_var.get()
+        state = "readonly" if enabled else tk.DISABLED
+        self._tts_engine_cb.config(state=state)
+        self._tts_voice_cb.config(state=state)
+
+    def _on_tts_engine_change(self, _event=None):
+        engine_name = self.tts_engine_var.get()
+        voices = []
+        if self._tts_engines_cache:
+            for e in self._tts_engines_cache:
+                if e["name"] == engine_name:
+                    voices = [f'{v["id"]}  ({v["name"]})' for v in e["voices"]]
+                    break
+        self._tts_voice_cb["values"] = voices
+        if voices:
+            self._tts_voice_var.set(voices[0])
+        else:
+            self._tts_voice_var.set("")
+
     # ── load / save ──────────────────────────────────────────────
 
     def _load_task(self, task):
@@ -249,6 +348,15 @@ class TaskDialog:
             days = getattr(task, "repeat_days", [0, 1, 2, 3, 4])
             var.set(i in days)
         self.month_day_var.set(str(getattr(task, "repeat_day", 1)))
+
+        # TTS
+        self.tts_enabled_var.set(getattr(task, "tts_enabled", True))
+        self.tts_engine_var.set(getattr(task, "tts_engine", "edge") or "edge")
+        self._on_tts_change()
+
+        # Store the voice ID separately; the combo displays "id (name)"
+        saved_voice = getattr(task, "tts_voice", "") or ""
+        self._saved_tts_voice_id = saved_voice
 
         self._on_mode_change()
         self._on_repeat_change()
@@ -295,5 +403,8 @@ class TaskDialog:
             repeat_type=repeat_type,
             repeat_days=repeat_days,
             repeat_day=repeat_day,
+            tts_enabled=self.tts_enabled_var.get(),
+            tts_engine=self.tts_engine_var.get(),
+            tts_voice=self._extract_voice_id(),
         )
         self.dialog.destroy()

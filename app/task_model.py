@@ -23,6 +23,11 @@ class Task:
     repeat_days: list = field(default_factory=lambda: [0, 1, 2, 3, 4])  # weekly: [0..6] 0=Mon
     repeat_day: int = 1                  # monthly: 1-31
 
+    # TTS (text-to-speech)
+    tts_enabled: bool = True             # read content aloud when notification fires
+    tts_engine: str = "edge"             # "edge" | "pyttsx3" | ""
+    tts_voice: str = ""                  # voice ID, empty = engine default
+
     def __post_init__(self):
         if self.id is None:
             self.id = str(uuid.uuid4())
@@ -42,6 +47,9 @@ class Task:
             "repeat_type": self.repeat_type,
             "repeat_days": self.repeat_days,
             "repeat_day": self.repeat_day,
+            "tts_enabled": self.tts_enabled,
+            "tts_engine": self.tts_engine,
+            "tts_voice": self.tts_voice,
         }
 
     @classmethod
@@ -56,6 +64,9 @@ class Task:
             repeat_type=d.get("repeat_type", "daily"),
             repeat_days=d.get("repeat_days", [0, 1, 2, 3, 4]),
             repeat_day=d.get("repeat_day", 1),
+            tts_enabled=d.get("tts_enabled", True),
+            tts_engine=d.get("tts_engine", "edge"),
+            tts_voice=d.get("tts_voice", ""),
         )
 
     # ── display helpers ──────────────────────────────────────────

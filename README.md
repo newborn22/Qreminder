@@ -54,6 +54,14 @@ python watcher.py --port 8080  # 自定义端口
 
 主窗口工具栏右侧点击 `🔕 开机自启: 关` 切换为 `🔔 开机自启: 开`。
 
+## 语音朗读
+
+提醒触发时自动朗读内容。任务编辑对话框中可选择：
+
+- **引擎**：Edge TTS（在线，61 种中英文语音，推荐）/ System TTS（离线，系统自带语音）
+- **语音**：按引擎列出可选语音，如 `zh-CN-XiaoxiaoNeural`（晓晓）
+- **启用/关闭**：每个任务可单独开关语音
+
 ## HTTP API（供外部程序/Agent 调用）
 
 应用启动后自动在 `127.0.0.1:19520` 开启 HTTP 服务。
@@ -99,6 +107,9 @@ python watcher.py --port 8080  # 自定义端口
 | `repeat_days` | [int] | `[0,1,2,3,4]` | 每周哪几天 (0=周一, 6=周日) |
 | `repeat_day` | int | `1` | 每月几号 (1-31) |
 | `enabled` | bool | `true` | 是否启用 |
+| `tts_enabled` | bool | `true` | 是否朗读语音 |
+| `tts_engine` | string | `"edge"` | TTS 引擎：`edge` / `pyttsx3` / `""` |
+| `tts_voice` | string | `""` | 语音 ID，空为引擎默认 |
 
 **POST /api/notify** — 立即弹通知：
 

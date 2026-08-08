@@ -41,6 +41,13 @@ class NotificationWindow(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self._on_close_attempt)
         self.build_ui()
 
+        # TTS: read content aloud
+        if getattr(task, "tts_enabled", True):
+            engine = getattr(task, "tts_engine", "edge") or "edge"
+            voice = getattr(task, "tts_voice", "") or ""
+            from .tts import speak
+            speak(task.content, engine=engine, voice=voice)
+
         # Mode-specific startup
         if task.mode == "shutdown":
             self.after(200, self.start_shutdown)
